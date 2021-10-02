@@ -97,6 +97,7 @@ class RobotBase:
         
         '''
         new_eta=0
+        newBel=0
         odd=(step+1)%2
         door=self.door_sense
         wall=self.wall_sense
@@ -105,20 +106,27 @@ class RobotBase:
         if odd:
             print(f"\nProbability of the robot sensing the DOOR at step = {step+1}")
             print("Door Detected:", door)
-            #calculate the new eta
-            new_eta=(1/door*bel_Bar).tolist()[0][0]
+            #calculate the new eta and new bel
+            d=door*bel_Bar
+            new_eta=(1/d.tolist()[0][0])
+    
+            newBel=new_eta*np.multiply(door,bel_Bar.reshape(1,4))
+            
         #else use wall sensing (wall_sense) uncertainity numbers
         else:
             print(f"\nProbability of the robot sensing the WALL at step = {step+1}")
             print("Wall Detected:", wall)
-            #calculate the new eta
-            new_eta=(1/wall*bel_Bar).tolist()[0][0]
+            #calculate the new eta and new bel
+            d=wall*bel_Bar
+            new_eta=1/d.tolist()[0][0]
+            newBel=new_eta*np.multiply(door,bel_Bar.reshape(1,4))
+           
         print("\nNormalization and η calculation:")
         print(f"eta{step+1} = ",new_eta)
         self.eta.append(new_eta)
-        
+       
         #calculate and return the robot's new belief of where it is located based on sensor uncertainties
-        return bel_Bar*new_eta
+        return newBel.reshape(4,1)
     
     def s_print(self,data):
         '''
